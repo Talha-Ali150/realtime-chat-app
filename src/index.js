@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import UserContext from "../src/context/UserContext";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -24,6 +25,8 @@ const router = createBrowserRouter(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <UserContext>
+      <RouterProvider router={router} />
+    </UserContext>
   </React.StrictMode>
 );

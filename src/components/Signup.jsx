@@ -2,8 +2,10 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState({ email: "", password: "", fullname: "" });
   const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState({});
@@ -41,15 +43,10 @@ const Signup = () => {
         user.email,
         user.password
       );
-      //   console.log("form submitted");
-      //   console.log(user.email);
-      //   console.log(user.password);
-      //   console.log(response.user.uid);
-
       let userInfo = {};
       userInfo.email = user.email;
       userInfo.fullname = user.fullname;
-      console.log("user info :::", userInfo);
+      navigate("/login");
       await addUserToDb(userInfo, userCredential.user.uid);
     } catch (error) {
       setError(error.code);

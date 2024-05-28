@@ -11,6 +11,8 @@ import {
 import Home from "./screens/Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Users from "./screens/Users";
+import Friends from "./screens/Friends";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter(
@@ -20,6 +22,8 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home />}></Route>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Signup />}></Route>
+      <Route path="/users" element={<Users />}></Route>
+      <Route path="/friends" element={<Friends />}></Route>
     </Route>
   )
 );

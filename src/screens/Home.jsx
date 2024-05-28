@@ -48,7 +48,7 @@ const Home = () => {
     });
   };
 
-  const checkChatroom = async (receiverID) => {
+  const checkChatroom = async (receiverID, receiverName) => {
     console.log("Checking chat room...");
 
     try {
@@ -67,7 +67,7 @@ const Home = () => {
 
       if (!room) {
         console.log("No existing chat room found. Creating a new one...");
-        const newChat = await createChatroom(receiverID);
+        const newChat = await createChatroom(receiverID, receiverName);
         return newChat;
       }
 
@@ -79,11 +79,19 @@ const Home = () => {
     }
   };
 
-  const createChatroom = async (receiverID) => {
+  const createChatroom = async (receiverID, receiverName) => {
     const obj = {
       users: {
-        [user.userID]: true,
-        [receiverID]: true,
+        // [user.userID]: true,
+        // [receiverID]: true,
+        [user.userID]: {
+          status: true,
+          name: fullName,
+        },
+        [receiverID]: {
+          status: true,
+          name: receiverName,
+        },
       },
       createdAt: Date.now(),
     };
@@ -115,7 +123,7 @@ const Home = () => {
                 <button
                   className="text-yellow-500"
                   onClick={() => {
-                    checkChatroom(item.id);
+                    checkChatroom(item.id, item.fullname);
                   }}
                 >
                   check chat room

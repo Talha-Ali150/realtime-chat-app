@@ -1,49 +1,92 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { UserState } from "../context/UserContext";
 
 const Friends = () => {
-  const [friendsList, setFriendsList] = useState([]);
   const { state } = UserState();
   const { user } = state;
   const userID = user.userID;
-  const fetchAllFriends = async () => {
+
+  const [friendsList, setFriendsList] = useState([]);
+  const [usersList, setUsersList] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [friendsNames, setFriendsNames] = useState([]);
+
+  const fetchFriends = async () => {
     try {
-      const q = query(
-        collection(db, "chatrooms"),
-        where(`users.${userID}.status`, "==", true)
-      );
+      onSnapshot(collection(db, "users"), (querySnapshot) => {
+        const users = [];
 
-      const querySnapshot = await getDocs(q);
-
-      const friends = [];
-      querySnapshot.forEach((doc) => {
-        friends.push({
-          id: doc.id,
-          ...doc.data(),
+        querySnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
         });
+
+        const user = users.find((c) => c.id === userID);
+        if (user && user.friends) {
+          setFriendsList(user.friends);
+
+          const friends = user.friends.map(friendID => {
+            const friend = users.find(u => u.id === friendID);
+            return friend ? friend.fullname : friendID;
+          });
+          setFriendsNames(friends);
+        }
       });
-      console.log(friends);
-      setFriendsList(friends);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const fetchAllUsers = () => {
+    try {
+      onSnapshot(collection(db, "users"), (querySnapshot) => {
+        const users = [];
+
+        querySnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
+        });
+        setUsersList(users.filter((c) => c.id !== userID));
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const filterFriendsFromUsers = (usersArray, friendsArray) => {
+    return usersArray.filter((user) => !friendsArray.includes(user.id));
+  };
+
   useEffect(() => {
-    fetchAllFriends();
+    fetchFriends();
+    fetchAllUsers();
   }, []);
+
+  useEffect(() => {
+    if ( usersList.length > 0) {
+      const filtered = filterFriendsFromUsers(usersList, friendsList);
+      setFilteredUsers(filtered);
+    }
+  }, [friendsList, usersList]);
+
   return (
     <div>
-      <h1 className="text-center font-bold">All Friends</h1>
-      {friendsList.map((item) => {
-        const userKeys = Object.keys(item.users);
-        console.log(item.users);
-        return userKeys.map(
-          (key) => key !== userID && <li key={key}>{item.users[key].name}</li>
-        );
-      })}
+      <h1 className="text-center font-bold">Friends</h1>
+      {friendsNames.length > 0 && (
+        <ul>
+          {friendsNames.map((name, index) => (
+            <li key={index}>{name}</li>
+          ))}
+        </ul>
+      )}
+      <h1 className="text-center font-bold">People You May Know</h1>
+      {filteredUsers && (
+        <ul>
+          {filteredUsers.map((item) => (
+            <li key={item.id}>{item.fullname}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

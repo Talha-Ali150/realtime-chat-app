@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { UserState } from "../context/UserContext";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDoc,
   getDocs,
   onSnapshot,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -48,64 +50,142 @@ const Home = () => {
     });
   };
 
-  const checkChatroom = async (receiverID, receiverName) => {
-    console.log("Checking chat room...");
+  // const checkChatroom = async (receiverID, receiverName) => {
+  //   console.log("Checking chat room...");
 
-    try {
-      const q = query(
-        collection(db, "chatrooms"),
-        where(`users.${user.userID}`, "==", true),
-        where(`users.${receiverID}`, "==", true)
-      );
+  //   try {
+  //     const q = query(
+  //       collection(db, "chatrooms"),
+  //       where(`users.${user.userID}`, "==", true),
+  //       where(`users.${receiverID}`, "==", true)
+  //     );
 
-      const querySnapshot = await getDocs(q);
+  //     const querySnapshot = await getDocs(q);
 
-      let room = null;
-      querySnapshot.forEach((doc) => {
-        room = { _id: doc.id, ...doc.data() };
-      });
+  //     let room = null;
+  //     querySnapshot.forEach((doc) => {
+  //       room = { _id: doc.id, ...doc.data() };
+  //     });
 
-      if (!room) {
-        console.log("No existing chat room found. Creating a new one...");
-        const newChat = await createChatroom(receiverID, receiverName);
-        return newChat;
-      }
+  //     if (!room) {
+  //       console.log("No existing chat room found. Creating a new one...");
+  //       const newChat = await createChatroom(receiverID, receiverName);
+  //       return newChat;
+  //     }
 
-      console.log("Chat room found:", room);
-      return room;
-    } catch (error) {
-      console.error("Error checking chat room:", error);
-      throw new Error("Failed to check chat room");
+  //     console.log("Chat room found:", room);
+  //     return room;
+  //   } catch (error) {
+  //     console.error("Error checking chat room:", error);
+  //     throw new Error("Failed to check chat room");
+  //   }
+  // };
+
+  // const createChatroom = async (receiverID, receiverName) => {
+  //   const obj = {
+  //     users: {
+  //       // [user.userID]: true,
+  //       // [receiverID]: true,
+  //       [user.userID]: {
+  //         status: true,
+  //         name: fullName,
+  //       },
+  //       [receiverID]: {
+  //         status: true,
+  //         name: receiverName,
+  //       },
+  //     },
+  //     createdAt: Date.now(),
+  //   };
+
+  //   try {
+  //     const docRef = await addDoc(collection(db, "chatrooms"), obj);
+  //     const newChatRoom = { _id: docRef.id, ...obj };
+  //     console.log("New chat room created:", newChatRoom);
+  //     return newChatRoom;
+  //   } catch (error) {
+  //     console.error("Error creating chat room:", error);
+  //     throw new Error("Failed to create chat room");
+  //   }
+  // };
+
+  // Function to check for an existing chat room or create a new one
+const checkChatroom = async (receiverID, receiverName) => {
+  console.log("Checking chat room...");
+
+  try {
+    const q = query(
+      collection(db, "chatrooms"),
+      where(`users.${user.userID}`, "==", true),
+      where(`users.${receiverID}`, "==", true)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    let room = null;
+    querySnapshot.forEach((doc) => {
+      room = { _id: doc.id, ...doc.data() };
+    });
+
+    if (!room) {
+      console.log("No existing chat room found. Creating a new one...");
+      const newChat = await createChatroom(receiverID, receiverName);
+      return newChat;
     }
-  };
 
-  const createChatroom = async (receiverID, receiverName) => {
-    const obj = {
-      users: {
-        // [user.userID]: true,
-        // [receiverID]: true,
-        [user.userID]: {
-          status: true,
-          name: fullName,
-        },
-        [receiverID]: {
-          status: true,
-          name: receiverName,
-        },
+    console.log("Chat room found:", room);
+    return room;
+  } catch (error) {
+    console.error("Error checking chat room:", error);
+    throw new Error("Failed to check chat room");
+  }
+};
+
+// Function to create a new chat room
+const createChatroom = async (receiverID, receiverName) => {
+  const obj = {
+    users: {
+      [user.userID]: {
+        status: true,
+        name: fullName,
       },
-      createdAt: Date.now(),
-    };
-
-    try {
-      const docRef = await addDoc(collection(db, "chatrooms"), obj);
-      const newChatRoom = { _id: docRef.id, ...obj };
-      console.log("New chat room created:", newChatRoom);
-      return newChatRoom;
-    } catch (error) {
-      console.error("Error creating chat room:", error);
-      throw new Error("Failed to create chat room");
-    }
+      [receiverID]: {
+        status: true,
+        name: receiverName,
+      },
+    },
+    createdAt: Date.now(),
   };
+
+  try {
+    const docRef = await addDoc(collection(db, "chatrooms"), obj);
+    const newChatRoom = { _id: docRef.id, ...obj };
+    console.log("New chat room created:", newChatRoom);
+
+    // Add both users to each other's friends list
+    await updateFriendsList(user.userID, receiverID);
+    await updateFriendsList(receiverID, user.userID);
+
+    return newChatRoom;
+  } catch (error) {
+    console.error("Error creating chat room:", error);
+    throw new Error("Failed to create chat room");
+  }
+};
+
+// Function to update the friends list
+const updateFriendsList = async (userID, friendID) => {
+  try {
+    const userRef = doc(db, "users", userID);
+    await updateDoc(userRef, {
+      friends: arrayUnion(friendID),
+    });
+    console.log(`Added ${friendID} to ${userID}'s friends list`);
+  } catch (error) {
+    console.error("Error updating friends list:", error);
+    throw new Error("Failed to update friends list");
+  }
+};
 
   return (
     <div>

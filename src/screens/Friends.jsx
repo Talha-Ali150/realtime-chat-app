@@ -2,8 +2,10 @@ import { collection, onSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { UserState } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const Friends = () => {
+  const navigate = useNavigate();
   const { state } = UserState();
   const { user } = state;
   const userID = user.userID;
@@ -11,7 +13,6 @@ const Friends = () => {
   const [friendsList, setFriendsList] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [friendsNames, setFriendsNames] = useState([]);
 
   const fetchFriends = async () => {
     try {
@@ -24,13 +25,14 @@ const Friends = () => {
 
         const user = users.find((c) => c.id === userID);
         if (user && user.friends) {
-          setFriendsList(user.friends);
-
-          const friends = user.friends.map(friendID => {
-            const friend = users.find(u => u.id === friendID);
-            return friend ? friend.fullname : friendID;
+          const fList = user.friends.map((friendID) => {
+            const friend = users.find((u) => u.id === friendID);
+            return friend
+              ? { id: friendID, name: friend.fullname }
+              : { id: friendID, name: friendID };
           });
-          setFriendsNames(friends);
+          console.log("this is friends list", fList);
+          setFriendsList(fList);
         }
       });
     } catch (error) {
@@ -46,6 +48,7 @@ const Friends = () => {
         querySnapshot.forEach((doc) => {
           users.push({ id: doc.id, ...doc.data() });
         });
+        console.log("this is users list", usersList);
         setUsersList(users.filter((c) => c.id !== userID));
       });
     } catch (error) {
@@ -53,8 +56,13 @@ const Friends = () => {
     }
   };
 
+  // const filterFriendsFromUsers = (usersArray, friendsArray) => {
+  //   return usersArray.filter((user) => !friendsArray.includes(user.id));
+  // };
+
   const filterFriendsFromUsers = (usersArray, friendsArray) => {
-    return usersArray.filter((user) => !friendsArray.includes(user.id));
+    const friendIDs = friendsArray.map(friend => friend.id);
+    return usersArray.filter(user => !friendIDs.includes(user.id));
   };
 
   useEffect(() => {
@@ -63,7 +71,7 @@ const Friends = () => {
   }, []);
 
   useEffect(() => {
-    if ( usersList.length > 0) {
+    if (usersList.length > 0) {
       const filtered = filterFriendsFromUsers(usersList, friendsList);
       setFilteredUsers(filtered);
     }
@@ -72,10 +80,17 @@ const Friends = () => {
   return (
     <div>
       <h1 className="text-center font-bold">Friends</h1>
-      {friendsNames.length > 0 && (
+      {friendsList.length > 0 && (
         <ul>
-          {friendsNames.map((name, index) => (
-            <li key={index}>{name}</li>
+          {friendsList.map((item) => (
+            <li
+              key={item.id}
+              onClick={() => {
+                navigate(`/chat/${item.id}`);
+              }}
+            >
+              {item.name}
+            </li>
           ))}
         </ul>
       )}

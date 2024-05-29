@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Users from "./screens/Users";
 import Friends from "./screens/Friends";
+import Chat from "./screens/Chat";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter(
@@ -24,6 +25,7 @@ const router = createBrowserRouter(
       <Route path="/register" element={<Signup />}></Route>
       <Route path="/users" element={<Users />}></Route>
       <Route path="/friends" element={<Friends />}></Route>
+      <Route path="/chat/:receiverID" element={<Chat />}></Route>
     </Route>
   )
 );

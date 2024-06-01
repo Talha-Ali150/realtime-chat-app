@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { CiMail } from "react-icons/ci";
+import { MdKey } from "react-icons/md";
+import { MdOutlineDriveFileRenameOutline } from "react-icons/md";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -53,46 +56,64 @@ const Signup = () => {
     }
   };
   return (
-    <div>
+    <div className="bg-gradient-to-r from-slate-900 to-customGreen h-screen flex flex-col justify-center items-center">
       <form
-        className="flex flex-col bg-red-700 text-center w-[40rem] mx-auto"
+        className="flex flex-col text-white  p-3 rounded-lg text-center w-[25rem] mx-auto bg-opacity-50"
         onSubmit={submitForm}
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
       >
-        <label htmlFor="email">EMAIL</label>
-        <input
-          type="email"
-          id="email"
-          placeholder="Eg: John@mail.com"
-          value={user.email}
-          onChange={(e) => {
-            setUser({ ...user, email: e.target.value });
-          }}
-        />
-        <p className="text-red-500">{formErrors.email}</p>
-        <label htmlFor="password">PASSWORD</label>
-        <input
-          type="password"
-          id="password"
-          placeholder="john1234"
-          value={user.password}
-          onChange={(e) => {
-            setUser({ ...user, password: e.target.value });
-          }}
-        />
-        <p className="text-red-500">{formErrors.password}</p>
-        <label htmlFor="fullname">FULL NAME</label>
-        <input
-          type="text"
-          id="fullname"
-          placeholder="john doe"
-          value={user.fullname}
-          onChange={(e) => {
-            setUser({ ...user, fullname: e.target.value });
-          }}
-        />
+        <p className="text-center m-3">Sign Up</p>
+        <div className="flex justify-center items-center mb-3">
+          <CiMail className="text-2xl m-3" />
+          <input
+            type="email"
+            id="email"
+            placeholder="Eg: John@mail.com"
+            className="bg-transparent outline-none text-white placeholder-gray-400 border-b-2 border-white focus:border-green-300 transition-colors duration-300 w-full"
+            value={user.email}
+            onChange={(e) => {
+              setUser({ ...user, email: e.target.value });
+            }}
+          />
+          <p className="text-red-500">{formErrors.email}</p>
+        </div>
+
+        <div className="flex justify-center items-center mb-3">
+          <MdKey className="text-2xl m-3" />
+          <input
+            type="password"
+            id="password"
+            placeholder="john1234"
+            className="bg-transparent outline-none text-white placeholder-gray-400 border-b-2 border-white focus:border-green-300 transition-colors duration-300 w-full"
+            value={user.password}
+            onChange={(e) => {
+              setUser({ ...user, password: e.target.value });
+            }}
+          />
+          <p className="text-red-500">{formErrors.password}</p>
+        </div>
+
+        <div className="flex justify-center items-center mb-3">
+          <MdOutlineDriveFileRenameOutline className="text-2xl m-3" />
+          <input
+            type="text"
+            id="fullname"
+            placeholder="john doe"
+            className="bg-transparent outline-none text-white placeholder-gray-400 border-b-2 border-white focus:border-green-300 transition-colors duration-300 w-full"
+            value={user.fullname}
+            onChange={(e) => {
+              setUser({ ...user, fullname: e.target.value });
+            }}
+          />
+        </div>
         <p className="text-red-500">{formErrors.fullname}</p>
         <p className="text-red-500">{error}</p>
-        <button type="submit">Sign Up</button>
+        <button
+          type="submit"
+          className="m-3 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300"
+        >
+          Sign Up
+        </button>
       </form>
     </div>
   );

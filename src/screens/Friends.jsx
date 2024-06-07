@@ -18,7 +18,7 @@ import { IoIosPersonAdd } from "react-icons/io";
 
 const Friends = () => {
   const navigate = useNavigate();
-  const { state } = UserState();
+  const { state, setname } = UserState();
   const { user } = state;
   const userID = user.userID;
 
@@ -161,15 +161,15 @@ const Friends = () => {
   }, [friendsList, usersList]);
 
   return (
-    <div>
-      <div className="bg-sky-500 h-[50vh] overflow-y-scroll">
+    <div className="bg-gradient-to-r from-slate-900 to-customGreen text-white">
+      <div className="h-[50vh] overflow-y-scroll">
         <h1 className="text-center font-bold">Friends</h1>
         {friendsList.length > 0 && (
           <ul>
             {friendsList.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center text-2xl font-bold p-2"
+                className="flex items-center text-2xl font-bold p-2 justify-center"
               >
                 <p>{item.name}</p>
                 <FaRegMessage
@@ -183,13 +183,13 @@ const Friends = () => {
           </ul>
         )}
       </div>
-      <div className="bg-red-500 h-[50vh] overflow-y-scroll">
+      <div className="h-[50vh] overflow-y-scroll">
         <h1 className="text-center font-bold">People You May Know</h1>
         {filteredUsers && (
           <ul>
             {filteredUsers.map((item) => (
               <li
-                className="flex items-center text-2xl font-bold p-2"
+                className="flex items-center text-2xl font-bold p-2 justify-center"
                 key={item.id}
               >
                 <p>{item.fullname}</p>

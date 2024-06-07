@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { UserState } from "../context/UserContext";
-import {
-  addDoc,
-  arrayUnion,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebase";
+import { signOut } from "firebase/auth";
 
 const Home = () => {
-  const [fullName, setFullName] = useState("");
-  const [usersList, setUsersList] = useState([]);
-  const { state } = UserState();
+  const { state, setname, logout } = UserState();
   const { user } = state;
+  const { fullName } = state.user;
+  const { userID } = state.user;
+  console.log(userID);
 
-  useEffect(() => {
-    getUserFromDB();
-    getAllUsersFromDB();
-  }, []);
-
-  const getUserFromDB = async () => {
+  const logoutUser = async () => {
     try {
-      const docRef = doc(db, "users", user.userID);
-      const docSnap = await getDoc(docRef);
+      await signOut(auth);
+      console.log("User signed out successfully");
+      logout();
+      navigate('/login')
+    } catch (error) {
+      console.log("Error signing out: ", error);
+    }
+  };
 
+  const getCurrentUser = async () => {
+    const docRef = doc(db, "users", userID);
+    const docSnap = await getDoc(docRef);
+
+    try {
       if (docSnap.exists()) {
-        console.log("Document data:", docSnap.data());
-        setFullName(docSnap.data().fullname);
+        setname(docSnap.data().fullname);
       } else {
         console.log("No such document!");
       }
@@ -41,116 +38,35 @@ const Home = () => {
     }
   };
 
-  const getAllUsersFromDB = () => {
-    onSnapshot(collection(db, "users"), (querySnapshot) => {
-      const users = [];
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
 
-      querySnapshot.forEach((doc) => {
-        users.push({ id: doc.id, ...doc.data() });
-      });
-      setUsersList(users.filter((c) => c.id !== user.userID));
-    });
-  };
-
-  const checkChatroom = async (receiverID, receiverName) => {
-    console.log("Checking chat room...");
-
-    try {
-      const q = query(
-        collection(db, "chatrooms"),
-        where(`users.${user.userID}.status`, "==", true),
-        where(`users.${receiverID}.status`, "==", true)
-      );
-
-      const querySnapshot = await getDocs(q);
-
-      let room = null;
-      querySnapshot.forEach((doc) => {
-        room = { _id: doc.id, ...doc.data() };
-      });
-
-      if (!room) {
-        console.log("No existing chat room found. Creating a new one...");
-        const newChat = await createChatroom(receiverID, receiverName);
-        return newChat;
-      }
-
-      console.log("Chat room found:", room);
-      return room;
-    } catch (error) {
-      console.error("Error checking chat room:", error);
-      throw new Error("Failed to check chat room");
-    }
-  };
-
-  const createChatroom = async (receiverID, receiverName) => {
-    const obj = {
-      users: {
-        [user.userID]: {
-          status: true,
-          name: fullName,
-        },
-        [receiverID]: {
-          status: true,
-          name: receiverName,
-        },
-      },
-      createdAt: Date.now(),
-    };
-
-    try {
-      const docRef = await addDoc(collection(db, "chatrooms"), obj);
-      const newChatRoom = { _id: docRef.id, ...obj };
-      console.log("New chat room created:", newChatRoom);
-
-      await updateFriendsList(user.userID, receiverID);
-      await updateFriendsList(receiverID, user.userID);
-
-      return newChatRoom;
-    } catch (error) {
-      console.error("Error creating chat room:", error);
-      throw new Error("Failed to create chat room");
-    }
-  };
-
-  const updateFriendsList = async (userID, friendID) => {
-    try {
-      const userRef = doc(db, "users", userID);
-      await updateDoc(userRef, {
-        friends: arrayUnion(friendID),
-      });
-      console.log(`Added ${friendID} to ${userID}'s friends list`);
-    } catch (error) {
-      console.error("Error updating friends list:", error);
-      throw new Error("Failed to update friends list");
-    }
-  };
-
+  const navigate = useNavigate();
   return (
-    <div>
-      <h1>
-        WELCOME {fullName} <span className="text-sky-500">{user.userID}</span>
+    <div className="flex flex-col items-center">
+      <h1 className="text-center font-extrabold text-3xl my-3">
+        Welcome {fullName}
       </h1>
-      <button onClick={getAllUsersFromDB}>get users</button>
-      {usersList && (
-        <ul>
-          {usersList.map((item) => {
-            return (
-              <li key={item.id}>
-                {item.fullname}
-                <span className="text-sky-500"> {item.id} </span>
-                <button
-                  className="text-yellow-500"
-                  onClick={() => {
-                    checkChatroom(item.id, item.fullname);
-                  }}
-                >
-                  check chat room
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+
+      <button
+        className="text-white bg-green-500 p-2 rounded-md cursor-pointer"
+        onClick={() => {
+          navigate("/friends");
+        }}
+      >
+        Browse Users
+      </button>
+
+      {user && (
+        <button
+          className="text-white bg-green-500 p-2 rounded-md cursor-pointer my-3"
+          onClick={() => {
+            logoutUser();
+          }}
+        >
+          Log Out
+        </button>
       )}
     </div>
   );

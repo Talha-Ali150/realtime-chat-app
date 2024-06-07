@@ -5,6 +5,7 @@ import "./index.css";
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
   RouterProvider,
 } from "react-router-dom";
@@ -16,11 +17,21 @@ import Friends from "./screens/Friends";
 import Chat from "./screens/Chat";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+const user = JSON.parse(localStorage.getItem("user"));
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       {/* <Route path="/" element={<Layout />}> */}
-      <Route path="/" element={<Home />}></Route>
+      {/* if(user){<Route path="/" element={<Home />}></Route>}
+      else{<Route path="/login" element={<Login />}></Route>} */}
+      {user ? (
+        <>
+          <Route path="/" element={<Home />} />
+        </>
+      ) : (
+        <Route path="/" element={<Navigate to="/login" />} />
+      )}
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Signup />}></Route>
       <Route path="/users" element={<Users />}></Route>

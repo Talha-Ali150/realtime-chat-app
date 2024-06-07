@@ -30,8 +30,14 @@ const UserProvider = ({ children }) => {
     });
   };
 
+  const setname = (payload) => {
+    dispatch({
+      type: "SET_NAME",
+      payload: payload,
+    });
+  };
   return (
-    <User.Provider value={{ state, dispatch, login, logout }}>
+    <User.Provider value={{ state, dispatch, login, logout, setname }}>
       {children}
     </User.Provider>
   );

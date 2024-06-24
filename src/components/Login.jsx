@@ -50,7 +50,10 @@ const Login = () => {
         userInfo.email,
         userInfo.password
       );
-      login({ email: response.user.email, userID: response.user.uid });
+       login({
+        email: response.user.email,
+        userID: response.user.uid,
+      });
       navigate("/");
     } catch (error) {
       setError(error.code);
@@ -60,12 +63,12 @@ const Login = () => {
   return (
     <div className="bg-gradient-to-r from-slate-900 to-customGreen h-screen flex flex-col justify-center items-center">
       <form
-        className="flex flex-col text-white  p-3 rounded-lg text-center w-[25rem] mx-auto bg-opacity-50"
+        className="flex flex-col text-white  p-3 rounded-lg text-center w-[90vw] mx-auto bg-opacity-50 md:w-[50vw]"
         onSubmit={submitForm}
         style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
       >
         <p className="text-center m-3">Sign In</p>
-        <p className="text-center m-3">Login to manage your account</p>
+        <p className="text-center m-3">Login to make friends and chat</p>
         <div className="flex justify-center items-center mb-3">
           <CiMail className="text-2xl m-3" />
           <input
@@ -81,9 +84,7 @@ const Login = () => {
         </div>
         <p className="text-red-500">{formErrors.email}</p>
 
-        <div
-          className="flex justify-center items-center mb-3"
-        >
+        <div className="flex justify-center items-center mb-3">
           <MdKey className="text-2xl m-3" />
           <input
             type="password"
@@ -105,7 +106,17 @@ const Login = () => {
           type="submit"
           className="m-3 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300"
         >
-          Log in
+          Sign In
+        </button>
+        <p>OR</p>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/register");
+          }}
+          className="m-3 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300"
+        >
+          Sign Up
         </button>
       </form>
 

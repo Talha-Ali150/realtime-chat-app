@@ -162,18 +162,29 @@ const Friends = () => {
 
   return (
     <div className="bg-gradient-to-r from-slate-900 to-customGreen text-white">
-      <div className="h-[50vh] overflow-y-scroll">
+      <div className="h-[50vh] overflow-y-scroll flex flex-col">
+        <button
+          onClick={() => {
+            navigate("/");
+          }}
+          className="text-white bg-green-500 p-2 w-[70vw] mx-auto rounded-md"
+        >
+          Go To Home
+        </button>
         <h1 className="text-center font-bold">Friends</h1>
         {friendsList.length > 0 && (
           <ul>
             {friendsList.map((item) => (
               <li
                 key={item.id}
-                className="flex items-center text-2xl font-bold p-2 justify-center"
+                className="flex items-center text-2xl font-bold p-2 justify-center cursor-pointer"
+                onClick={() => {
+                  navigate(`/chat/${item.id}`);
+                }}
               >
                 <p>{item.name}</p>
                 <FaRegMessage
-                  className="mx-2 cursor-pointer"
+                  className="mx-2"
                   onClick={() => {
                     navigate(`/chat/${item.id}`);
                   }}
@@ -189,16 +200,14 @@ const Friends = () => {
           <ul>
             {filteredUsers.map((item) => (
               <li
-                className="flex items-center text-2xl font-bold p-2 justify-center"
+                className="flex items-center text-2xl font-bold p-2 justify-center cursor-pointer"
                 key={item.id}
+                onClick={() => {
+                  checkChatroom(item.id, item.fullname);
+                }}
               >
                 <p>{item.fullname}</p>
-                <IoIosPersonAdd
-                  className="mx-2 cursor-pointer"
-                  onClick={() => {
-                    checkChatroom(item.id, item.fullname);
-                  }}
-                />
+                <IoIosPersonAdd className="mx-2 " />
               </li>
             ))}
           </ul>

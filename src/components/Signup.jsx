@@ -58,7 +58,7 @@ const Signup = () => {
   return (
     <div className="bg-gradient-to-r from-slate-900 to-customGreen h-screen flex flex-col justify-center items-center">
       <form
-        className="flex flex-col text-white  p-3 rounded-lg text-center w-[25rem] mx-auto bg-opacity-50"
+        className="flex flex-col text-white  p-3 rounded-lg text-center w-[90vw] mx-auto bg-opacity-50 md:w-[50vw]"
         onSubmit={submitForm}
         style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
       >
@@ -113,6 +113,16 @@ const Signup = () => {
           className="m-3 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300"
         >
           Sign Up
+        </button>
+        <p>OR</p>
+        <button
+onClick={(e) => {
+  e.preventDefault();
+  navigate("/login");
+}}
+          className="m-3 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300"
+        >
+          Sign In
         </button>
       </form>
     </div>

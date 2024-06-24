@@ -8,7 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { db } from "../firebase";
 import { UserState } from "../context/UserContext";
 import { IoMdSend } from "react-icons/io";
@@ -23,6 +23,7 @@ const Chat = () => {
   const [chats, setChats] = useState([]);
   const [receiverName, setReceiverName] = useState("");
   const chatContainerRef = useRef(null);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -106,6 +107,7 @@ const Chat = () => {
 
   return (
     <div className="bg-gradient-to-r from-slate-900 to-customGreen h-screen flex flex-col justify-center">
+      <button onClick={()=>{navigate('/friends')}} className="text-white bg-green-500 p-2 w-[70vw] mx-auto rounded-md">Go To Friends</button>
       <p className="text-center text-white">{receiverName}</p>
       <ul
         ref={chatContainerRef}

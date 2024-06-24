@@ -25,13 +25,15 @@ const router = createBrowserRouter(
       {/* <Route path="/" element={<Layout />}> */}
       {/* if(user){<Route path="/" element={<Home />}></Route>}
       else{<Route path="/login" element={<Login />}></Route>} */}
-      {user ? (
+
+      {/* {user ? (
         <>
           <Route path="/" element={<Home />} />
         </>
       ) : (
         <Route path="/" element={<Navigate to="/login" />} />
-      )}
+      )} */}
+      <Route path="/" element={<Home />}></Route>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Signup />}></Route>
       <Route path="/users" element={<Users />}></Route>
